@@ -1,7 +1,7 @@
 import os
-import sys
 import argparse
 import shutil
+import tempfile
 from pathlib import Path
 
 def copy_unique(source: Path, destination_dir: Path) -> Path:
@@ -19,24 +19,21 @@ def copy_unique(source: Path, destination_dir: Path) -> Path:
 
 
 def copy_files(folderPath, destinationPath) -> None:
-    try:
-        for content in os.listdir(folderPath):
-            contentPath = Path(folderPath) / content
+    for content in os.listdir(folderPath):
+        contentPath = Path(folderPath) / content
 
-            if contentPath.is_file():
-                if contentPath.suffix:
-                    ext = contentPath.suffix.lstrip(".")
-                else:
-                    ext = "no_extension"
-                target_dir = Path(destinationPath) / ext
-                target_dir.mkdir(parents=True, exist_ok=True)
-                
-                copy_unique(contentPath, target_dir)
+        if contentPath.is_file():
+            if contentPath.suffix:
+                ext = contentPath.suffix.lstrip(".")
+            else:
+                ext = "no_extension"
+            target_dir = Path(destinationPath) / ext
+            target_dir.mkdir(parents=True, exist_ok=True)
 
-            if contentPath.is_dir():
-                copy_files(os.path.join(folderPath, content), destinationPath)
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+            copy_unique(contentPath, target_dir)
+
+        if contentPath.is_dir():
+            copy_files(os.path.join(folderPath, content), destinationPath)
 
 
             
@@ -54,16 +51,27 @@ def main() -> None:
     source_dir = Path(args.source)
     destination_dir = Path(args.destination)
 
-    print(f"Вихідна директорія: {source_dir}")
-    print(f"Директорія призначення: {destination_dir}")
-
 
     if not source_dir.is_dir():
         parser.error(f"source directory does not exist: {source_dir}")
     if source_dir == destination_dir:
         parser.error("destination directory must not be the source directory")
 
-    copy_files(source_dir, destination_dir)
+    try:
+        destination_dir.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryFile(dir=destination_dir) as probe:
+            probe.write(b"\0")
+            probe.flush()
+    except OSError as error:
+        parser.error(
+            f"cannot create or write to destination directory "
+            f"'{destination_dir}': {error}"
+        )
+
+    try:
+        copy_files(source_dir, destination_dir)
+    except OSError as error:
+        parser.error(f"failed to copy files: {error}")
 
 
 if __name__ == "__main__":
