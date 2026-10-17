@@ -5,9 +5,9 @@ from merge_sort import merge_sort
 from insertion_sort import insertion_sort
 
 if __name__ == "__main__":
-    data_small = [random.randint(0, 1000) for _ in range(1_000)]
-    data_medium = [random.randint(0, 10_000) for _ in range(10_000)]
-    data_large = [random.randint(0, 100_000) for _ in range(100_000)]
+    data_small = [random.randint(0, 100) for _ in range(100)]
+    data_medium = [random.randint(0, 1_000) for _ in range(1_000)]
+    data_large = [random.randint(0, 10_000) for _ in range(10_000)]
     
     time_small_merge = timeit.timeit(lambda: merge_sort(data_small), number=10)
     time_small_insertion = timeit.timeit(lambda: insertion_sort(data_small), number=10)
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     time_large_insertion = timeit.timeit(lambda: insertion_sort(data_large), number=10)
     time_large_tim = timeit.timeit(lambda: sorted(data_large), number=10)
 
-    print(f"Algorithm\tSmall\tMedium\tLarge")
-    print(f"Merge Sort\t{time_small_merge}\t{time_medium_merge}\t{time_large_merge}")
-    print(f"Insertion Sort\t{time_small_insertion}\t{time_medium_insertion}\t{time_large_insertion}")
-    print(f"Tim Sort\t{time_small_tim}\t{time_medium_tim}\t{time_large_tim}")
+    print(f"{'Algorithm': <20} {'Small': <10} {'Medium': <10} {'Large': <10}")
+    print(f"{ 'Merge Sort': <20} {time_small_merge: <10.6f} {time_medium_merge: <10.6f} {time_large_merge: <10.6f}")
+    print(f"{ 'Insertion Sort': <20} {time_small_insertion: <10.6f} {time_medium_insertion: <10.6f} {time_large_insertion: <10.6f}")
+    print(f"{ 'Timsort': <20} {time_small_tim: <10.6f} {time_medium_tim: <10.6f} {time_large_tim: <10.6f}")
